@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>My Year</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <header>
+    <div class="page-inner header-content">
+      <div>
+        <h1>My Year</h1>
+        <p class="subhead" id="subheadText"></p>
+      </div>
+
+      <div id="controls">
+        <span id="yearLabel">Year</span>
+        <input id="yearInput" type="number" min="1" max="9999" />
+
+        <span class="label">Mode</span>
+        <div class="mode-toggle" role="tablist" aria-label="Mode toggle">
+          <button id="modeFocusBtn" type="button">Focus</button>
+          <button id="modeBuildBtn" type="button">Build</button>
+        </div>
+
+        <button id="openFullscreenButton" class="btn btn-primary" type="button">
+          Open Year in Fullscreen
+        </button>
+
+        <button id="exportButton" class="btn" type="button">Export Data</button>
+        <button id="importButton" class="btn" type="button">Import Data</button>
+        <input id="importFileInput" type="file" accept="application/json" />
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="page-inner">
+      <section id="mainPanel" class="panel">
+        <div class="panel-header">
+          <h2 class="section-title" id="mainTitle"></h2>
+          <p class="section-desc" id="mainDesc"></p>
+        </div>
+
+        <div class="panel-body">
+          <div class="grid">
+            <!-- Left: changes based on mode -->
+            <div>
+              <!-- Focus mode: daily tasks planner -->
+              <div id="FocusPlanner" class="panel subpanel">
+                <div class="panel-header subpanel-header">
+                  <div class="row-flex">
+                    <div class="pill"><strong>Daily Tasks</strong></div>
+                    <span class="label">Day</span>
+                    <select id="dayPicker" class="select" title="Pick a day"></select>
+                    <button id="openCalendarToDayBtn" class="btn" type="button">Open Calendar</button>
+                  </div>
+                  <p class="section-desc subpanel-desc">
+                    Plan what you must do today. These tasks show as text on the calendar for that day.
+                  </p>
+                </div>
+                <div class="panel-body">
+                  <div id="dayTaskList" class="list"></div>
+
+                  <div class="new-row">
+                    <input id="newDayTaskInput" class="new-input" type="text" placeholder="Add a daily task..." />
+                    <button id="addDayTaskBtn" class="add" type="button" disabled>Add</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Build mode: Big Moves list -->
+              <div id="BuildBigMoves" class="panel subpanel" style="display:none;">
+                <div class="panel-header subpanel-header">
+                  <h3 class="section-title small-title">Big Moves (Final Goals)</h3>
+                  <p class="section-desc subpanel-desc">
+                    These are your Build targets. You’ll schedule “Build Sessions” that point at one of these.
+                  </p>
+                </div>
+                <div class="panel-body">
+                  <div id="bigMovesList" class="list"></div>
+
+                  <div class="new-row">
+                    <input id="newBigMoveInput" class="new-input" type="text" placeholder="Add a big move..." />
+                    <button id="addBigMoveBtn" class="add" type="button" disabled>Add</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Build sessions (Build mode) OR explanation (Focus mode) -->
+            <div>
+              <div id="BuildSessionsPanel" class="panel subpanel" style="display:none;">
+                <div class="panel-header subpanel-header">
+                  <h3 class="section-title small-title">Build Sessions</h3>
+                  <p class="section-desc subpanel-desc">
+                    Create a session tied to a Big Move, then place it on a day. Calendar shows the session text.
+                  </p>
+                </div>
+                <div class="panel-body">
+                  <div class="row-flex Build-row">
+                    <span class="label">Big Move</span>
+                    <select id="bigMoveSelect" class="select bigmove-select"></select>
+                  </div>
+
+                  <div class="new-row no-top-border no-top-space">
+                    <input id="newBuildSessionInput" class="new-input" type="text"
+                      placeholder="Session text (optional). Default: Deep work on selected big move" />
+                    <button id="scheduleBuildSessionBtn" class="add" type="button">Schedule</button>
+                  </div>
+
+                  <div class="helper-text">
+                    Scheduling opens the fullscreen calendar. Click a day to place the session.
+                  </div>
+                </div>
+              </div>
+
+              <div id="FocusSidebar" class="panel subpanel">
+                <div class="panel-header subpanel-header">
+                  <h3 class="section-title small-title">What this is for</h3>
+                  <p class="section-desc subpanel-desc">
+                    Plan today. Add the tasks you need to do and check them off. The calendar shows what you planned and did.
+                  </p>
+                </div>
+                <div class="panel-body">
+                  <div class="pill"><strong>Use it like:</strong> pick a day → write tasks → do tasks → done.</div>
+                  <div class="spacer-10"></div>
+                  <div class="pill"><strong>Calendar:</strong> shows what you planned/did, plus notes.</div>
+                </div>
+              </div>
+
+              <div id="BuildSidebarHint" class="panel subpanel" style="display:none;">
+                <div class="panel-header subpanel-header">
+                  <h3 class="section-title small-title">Build Mode mindset</h3>
+                  <p class="section-desc subpanel-desc">
+                    Build Mode is “progress toward a final goal.” You schedule sessions (not tiny habits). Density and consistency matter.
+                  </p>
+                </div>
+                <div class="panel-body">
+                  <div class="pill"><strong>Use it like:</strong> define big moves → schedule sessions → follow through.</div>
+                  <div class="spacer-10"></div>
+                  <div class="pill"><strong>Calendar:</strong> becomes proof of real progress.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calendar only used for fullscreen -->
+      <div id="calendarWrapper">
+        <div id="scheduleOverlay" role="status" aria-live="polite">
+          <div class="row">
+            <div id="scheduleOverlayText"></div>
+            <button id="cancelScheduleButton" type="button">Cancel</button>
+          </div>
+          <div class="hint">Tip: click a day to place it. Press Escape to cancel.</div>
+        </div>
+
+        <div id="dayPopup" role="dialog" aria-modal="true">
+          <div class="top">
+            <h3 id="dayPopupTitle"></h3>
+            <button id="closeDayPopup" type="button">Close</button>
+          </div>
+
+          <div class="popup-section">
+            <div class="h">Scheduled items</div>
+            <div id="dayPopupList" class="popup-list"></div>
+          </div>
+
+          <div class="popup-section">
+            <div class="h">Notes</div>
+            <div id="dayPopupNotes" class="popup-notes"></div>
+          </div>
+        </div>
+
+        <table class="calendar" id="calendar"></table>
+      </div>
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
