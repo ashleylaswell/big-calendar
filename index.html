@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -59,7 +60,7 @@
                     <button id="openCalendarToDayBtn" class="btn" type="button">Open Calendar</button>
                   </div>
                   <p class="section-desc subpanel-desc">
-                    Plan what you must do today. These tasks show as text on the calendar for that day.
+                    Add tasks for the day. Mark “Income” when it directly moves you toward income.
                   </p>
                 </div>
                 <div class="panel-body">
@@ -67,6 +68,10 @@
 
                   <div class="new-row">
                     <input id="newDayTaskInput" class="new-input" type="text" placeholder="Add a daily task..." />
+                    <label class="toggle">
+                      <input id="newDayTaskIncome" type="checkbox" />
+                      <span>Income</span>
+                    </label>
                     <button id="addDayTaskBtn" class="add" type="button" disabled>Add</button>
                   </div>
                 </div>
@@ -77,7 +82,7 @@
                 <div class="panel-header subpanel-header">
                   <h3 class="section-title small-title">Big Moves (Final Goals)</h3>
                   <p class="section-desc subpanel-desc">
-                    These are your Build targets. You’ll schedule “Build Sessions” that point at one of these.
+                    These are your Build targets. You’ll schedule Build Sessions that point at one of these.
                   </p>
                 </div>
                 <div class="panel-body">
@@ -97,7 +102,7 @@
                 <div class="panel-header subpanel-header">
                   <h3 class="section-title small-title">Build Sessions</h3>
                   <p class="section-desc subpanel-desc">
-                    Create a session tied to a Big Move, then place it on a day. Calendar shows the session text.
+                    Create a session tied to a Big Move, then place it on a day.
                   </p>
                 </div>
                 <div class="panel-body">
@@ -122,13 +127,13 @@
                 <div class="panel-header subpanel-header">
                   <h3 class="section-title small-title">What this is for</h3>
                   <p class="section-desc subpanel-desc">
-                    Plan today. Add the tasks you need to do and check them off. The calendar shows what you planned and did.
+                    Focus Mode is about consistency toward income. Support tasks still count as showing up.
                   </p>
                 </div>
                 <div class="panel-body">
                   <div class="pill"><strong>Use it like:</strong> pick a day → write tasks → do tasks → done.</div>
                   <div class="spacer-10"></div>
-                  <div class="pill"><strong>Calendar:</strong> shows what you planned/did, plus notes.</div>
+                  <div class="pill"><strong>Calendar:</strong> light day = support, heavier day = income touched.</div>
                 </div>
               </div>
 
@@ -136,7 +141,7 @@
                 <div class="panel-header subpanel-header">
                   <h3 class="section-title small-title">Build Mode mindset</h3>
                   <p class="section-desc subpanel-desc">
-                    Build Mode is “progress toward a final goal.” You schedule sessions (not tiny habits). Density and consistency matter.
+                    Build Mode is “progress toward a final goal.” Schedule sessions that move Big Moves forward.
                   </p>
                 </div>
                 <div class="panel-body">

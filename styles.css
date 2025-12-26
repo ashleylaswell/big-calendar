@@ -1,3 +1,4 @@
+/* styles.css */
 :root{
   --bg: #f4f6fb;
   --panel: rgba(255,255,255,0.86);
@@ -15,6 +16,11 @@
   --radius: 16px;
   --radius-sm: 12px;
   --pill: 999px;
+
+  /* Focus day meaning (pastel weight) */
+  --focus-support: rgba(167, 139, 250, 0.12); /* lavender */
+  --focus-income: rgba(167, 139, 250, 0.30);  /* stronger lavender */
+  --focus-ring: rgba(15, 23, 42, 0.10);
 }
 
 * { box-sizing: border-box; }
@@ -186,12 +192,16 @@ main{ padding: 1.25rem 0 2.25rem; }
   max-width: 920px;
 }
 
+.small-title{
+  font-size:16px;
+  margin:0 0 0.25rem;
+}
+
 .grid{
   display:grid;
   grid-template-columns: 1fr;
   gap: 1rem;
 }
-
 @media (min-width: 900px){
   .grid{ grid-template-columns: 1.15fr 0.85fr; }
 }
@@ -203,7 +213,6 @@ main{ padding: 1.25rem 0 2.25rem; }
   border-radius: var(--pill);
   overflow:hidden;
 }
-
 .mode-toggle button{
   border:0;
   background: transparent;
@@ -215,7 +224,6 @@ main{ padding: 1.25rem 0 2.25rem; }
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-
 .mode-toggle button.active{
   background: rgba(15,23,42,0.92);
   color: #f8fafc;
@@ -253,7 +261,6 @@ select, input[type="number"], input[type="text"]{
   background: rgba(255,255,255,0.85);
   color: rgba(15,23,42,0.90);
 }
-
 .select:focus{
   outline:none;
   border-color: rgba(15,23,42,0.35);
@@ -304,14 +311,12 @@ select, input[type="number"], input[type="text"]{
   color: var(--text);
   min-width: 120px;
 }
-
 .text:focus{
   outline:none;
   border-color: rgba(15,23,42,0.35);
   background:#fff;
   box-shadow: 0 0 0 4px rgba(15,23,42,0.10);
 }
-
 .text.done{
   text-decoration: line-through;
   color: rgba(15,23,42,0.55);
@@ -341,6 +346,10 @@ select, input[type="number"], input[type="text"]{
   font-weight: 650;
   color: rgba(15,23,42,0.75);
 }
+.badge.good{
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.14);
+}
 
 .buttons{
   display:inline-flex;
@@ -365,7 +374,6 @@ select, input[type="number"], input[type="text"]{
   border-color: rgba(15,23,42,0.18);
 }
 .mini:active{ transform: translateY(1px); }
-
 .mini.delete{
   color: var(--danger);
   border-color: var(--danger-border);
@@ -374,6 +382,14 @@ select, input[type="number"], input[type="text"]{
 .mini.delete:hover{
   background: #fee2e2;
   border-color: #fca5a5;
+}
+.mini.flag{
+  border-color: rgba(167, 139, 250, 0.35);
+  background: rgba(167, 139, 250, 0.12);
+}
+.mini.flag.active{
+  background: rgba(167, 139, 250, 0.26);
+  border-color: rgba(167, 139, 250, 0.55);
 }
 
 .new-row{
@@ -394,11 +410,29 @@ select, input[type="number"], input[type="text"]{
   background: rgba(255,255,255,0.85);
   color: var(--text);
 }
-
 .new-input:focus{
   outline:none;
   border-color: rgba(15,23,42,0.35);
   box-shadow: 0 0 0 4px rgba(15,23,42,0.10);
+}
+
+.toggle{
+  display:inline-flex;
+  align-items:center;
+  gap: 0.45rem;
+  padding: 8px 10px;
+  border-radius: var(--pill);
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(255,255,255,0.75);
+  font-size: 12px;
+  color: rgba(15,23,42,0.78);
+  user-select:none;
+}
+.toggle input{
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor:pointer;
 }
 
 .add{
@@ -416,6 +450,17 @@ select, input[type="number"], input[type="text"]{
 .add:active{ transform: translateY(1px); }
 .add[disabled]{ opacity:0.45; cursor:not-allowed; transform:none; }
 
+/* subpanel helpers used in your HTML */
+.subpanel{ box-shadow:none; border:1px solid rgba(15,23,42,0.10); background: rgba(255,255,255,0.70); }
+.subpanel-header{ border-bottom: 1px solid rgba(15,23,42,0.08); }
+.subpanel-desc{ margin: 0.55rem 0 0; }
+.spacer-10{ height: 10px; }
+.helper-text{ margin-top: 0.7rem; font-size: 12px; color: var(--muted); line-height: 1.45; }
+.no-top-border{ border-top:none; }
+.no-top-space{ padding-top:0; margin-top:0; }
+.Build-row{ gap:0.5rem; margin-bottom: 0.8rem; }
+.bigmove-select{ flex:1 1 auto; min-width: 220px; }
+
 /* Calendar wrapper */
 #calendarWrapper{
   display:none;
@@ -428,7 +473,7 @@ table.calendar{
   border-collapse: collapse;
   font-size: 11px;
   text-transform: uppercase;
-  table-layout: fixed; /* critical: prevents content from widening columns */
+  table-layout: fixed; /* prevents content from widening columns */
 }
 
 table.calendar td{
@@ -460,7 +505,7 @@ td.empty{ background: #f9f9f9; }
   font-weight: 700;
   white-space: nowrap;
   margin-bottom: 2px;
-  overflow:hidden; /* clip */
+  overflow:hidden;
 }
 
 .scheduled-lines{
@@ -473,7 +518,6 @@ td.empty{ background: #f9f9f9; }
   overflow:hidden;
 }
 
-/* Normal mode pills */
 .scheduled-line{
   background: rgba(15,23,42,0.06);
   border: 1px solid rgba(15,23,42,0.10);
@@ -539,6 +583,14 @@ body.fullscreen table.calendar td{
 
 body.fullscreen td.month-name{ min-width: 30px; }
 
+/* Fullscreen: meaning via subtle fill weight */
+body.fullscreen td.focus-support{ background: var(--focus-support); }
+body.fullscreen td.focus-income{ background: var(--focus-income); }
+body.fullscreen td.focus-support,
+body.fullscreen td.focus-income{
+  box-shadow: inset 0 0 0 1px var(--focus-ring);
+}
+
 /* Fullscreen: denser scheduled area */
 body.fullscreen .scheduled-lines{
   font-size: 10px;
@@ -547,17 +599,17 @@ body.fullscreen .scheduled-lines{
   margin-bottom: 0;
 }
 
-/* Fullscreen: micro-pill style (polished but tiny) */
+/* Fullscreen: tiny “polished” micro-pill */
 body.fullscreen .scheduled-line{
-  background: rgba(15,23,42,0.05);  /* very light */
+  background: rgba(255,255,255,0.45);
   border: 1px solid rgba(15,23,42,0.10);
   border-radius: 6px;
-  padding: 0 2px;                   /* tiny padding */
+  padding: 0 2px;
   white-space: nowrap;
-  overflow:hidden;                  /* clip */
+  overflow:hidden;
 }
 
-/* Fullscreen: hide notes so it stays useful */
+/* Fullscreen: hide notes so the grid stays readable */
 body.fullscreen .day-notes{
   display:none;
 }
@@ -637,6 +689,12 @@ body.fullscreen .day-notes{
 }
 
 .popup-item.done{ opacity: 0.7; text-decoration: line-through; }
+
+.popup-notes{
+  font-size:12px;
+  color: rgba(15,23,42,0.85);
+  white-space: pre-wrap;
+}
 
 /* Scheduling overlay */
 #scheduleOverlay{

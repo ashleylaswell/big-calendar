@@ -1,3 +1,4 @@
+// app.js
 (() => {
   const $ = (id) => document.getElementById(id);
 
@@ -28,6 +29,7 @@
     openCalendarToDayBtn: $("openCalendarToDayBtn"),
     dayTaskList: $("dayTaskList"),
     newDayTaskInput: $("newDayTaskInput"),
+    newDayTaskIncome: $("newDayTaskIncome"),
     addDayTaskBtn: $("addDayTaskBtn"),
 
     bigMovesList: $("bigMovesList"),
@@ -113,14 +115,15 @@
       out[dk] = arr.map(t => {
         if (typeof t === "string") {
           const tt = t.trim();
-          return tt ? { id: makeId(), text: tt, done: false, kind: "Focus", bigMoveId: null } : null;
+          return tt ? { id: makeId(), text: tt, done: false, kind: "Focus", bigMoveId: null, income: false } : null;
         }
         if (!t || typeof t !== "object") return null;
         const text = String(t.text ?? "").trim();
         if (!text) return null;
         const kind = (t.kind === "Build" || t.kind === "Focus") ? t.kind : "Focus";
         const bigMoveId = t.bigMoveId == null || t.bigMoveId === "" ? null : String(t.bigMoveId);
-        return { id: String(t.id ?? makeId()), text, done: Boolean(t.done), kind, bigMoveId };
+        const income = kind === "Focus" ? Boolean(t.income) : false;
+        return { id: String(t.id ?? makeId()), text, done: Boolean(t.done), kind, bigMoveId, income };
       }).filter(Boolean);
     }
     return out;
@@ -149,6 +152,7 @@
   };
 
   const tasksFor = (dk) => Array.isArray(S.dayTasks[dk]) ? S.dayTasks[dk] : [];
+  const findBigMove = (idVal) => S.bigMoves.find(b => b.id === idVal) || null;
 
   const buildAllDataObject = () => {
     const data = { mode: {}, calendarNotes: {}, bigMoves: {}, dayTasks: {} };
@@ -242,8 +246,6 @@
     writeDailyLocalSnapshot();
   };
 
-  const findBigMove = (idVal) => S.bigMoves.find(b => b.id === idVal) || null;
-
   const setMode = (mode) => {
     S.mode = mode === "Build" ? "Build" : "Focus";
     save(key.mode(S.year), S.mode);
@@ -254,13 +256,13 @@
     const isFocus = S.mode === "Focus";
 
     el.subheadText.innerHTML = isFocus
-      ? "Focus Mode = survival + income. The calendar is for making effort visible."
+      ? "Focus Mode = survival + income. Light days = support. Heavier days = income completed."
       : "Build Mode = sessions that move your Big Moves forward.";
 
     el.mainTitle.textContent = isFocus ? "Focus Mode" : "Build Mode";
     el.mainDesc.textContent = isFocus
-      ? "Plan daily tasks. They show on the calendar as text. Notes are optional."
-      : "Define Big Moves (final goals). Schedule Build Sessions tied to one Big Move. Calendar becomes proof of progress.";
+      ? "Plan daily tasks. Mark income tasks. Fullscreen calendar shows consistency at a glance."
+      : "Define Big Moves (final goals). Schedule Build Sessions tied to one Big Move.";
 
     el.FocusPlanner.style.display = isFocus ? "block" : "none";
     el.FocusSidebar.style.display = isFocus ? "block" : "none";
@@ -337,16 +339,34 @@
 
       const meta = document.createElement("div");
       meta.className = "meta";
-      const badge = document.createElement("span");
-      badge.className = "badge";
-      badge.innerHTML = `<strong>Day:</strong> <span>${esc(formatDateKey(dk))}</span>`;
-      meta.appendChild(badge);
+
+      const dayBadge = document.createElement("span");
+      dayBadge.className = "badge";
+      dayBadge.innerHTML = `<strong>Day:</strong> <span>${esc(formatDateKey(dk))}</span>`;
+      meta.appendChild(dayBadge);
+
+      const incomeBadge = document.createElement("span");
+      incomeBadge.className = "badge" + (t.income ? " good" : "");
+      incomeBadge.innerHTML = `<strong>Type:</strong> <span>${t.income ? "Income" : "Support"}</span>`;
+      meta.appendChild(incomeBadge);
 
       mid.appendChild(input);
       mid.appendChild(meta);
 
       const buttons = document.createElement("div");
       buttons.className = "buttons";
+
+      const incomeBtn = document.createElement("button");
+      incomeBtn.type = "button";
+      incomeBtn.className = "mini flag" + (t.income ? " active" : "");
+      incomeBtn.textContent = "Income";
+      incomeBtn.title = "Toggle income task";
+      incomeBtn.addEventListener("click", () => {
+        t.income = !t.income;
+        setTasksFor(dk, full);
+        renderSelectedDayTasks();
+        buildCalendar(S.year);
+      });
 
       const del = document.createElement("button");
       del.type = "button";
@@ -359,6 +379,7 @@
         buildCalendar(S.year);
       });
 
+      buttons.appendChild(incomeBtn);
       buttons.appendChild(del);
 
       row.appendChild(check);
@@ -500,13 +521,14 @@
       arr.forEach(t => {
         const item = document.createElement("div");
         item.className = "popup-item" + (t.done ? " done" : "");
-        const prefix = t.kind === "Focus" ? "B:" : "D:";
+        const isFocus = t.kind === "Focus";
+        const tag = isFocus ? (t.income ? "Income" : "Support") : "Build";
         let extra = "";
         if (t.kind === "Build" && t.bigMoveId) {
           const bm = findBigMove(t.bigMoveId);
           if (bm) extra = ` (→ ${bm.text})`;
         }
-        item.textContent = `${prefix} ${t.text}${extra}`;
+        item.textContent = `${tag}: ${t.text}${extra}`;
         el.dayPopupList.appendChild(item);
       });
     }
@@ -544,7 +566,8 @@
       text: S.scheduling.text,
       done: false,
       kind: S.scheduling.kind,
-      bigMoveId: S.scheduling.bigMoveId || null
+      bigMoveId: S.scheduling.bigMoveId || null,
+      income: false
     });
     setTasksFor(dk, arr);
     cancelSchedulingMode();
@@ -560,7 +583,6 @@
 
     const sorted = [...arr].sort((a,b) => (a.kind === S.mode ? 0 : 1) - (b.kind === S.mode ? 0 : 1));
     const max = 3;
-
     const isFullscreen = document.body.classList.contains("fullscreen");
 
     sorted.slice(0, max).forEach(t => {
@@ -568,11 +590,9 @@
       line.className = "scheduled-line" + (t.done ? " done" : "");
 
       if (isFullscreen) {
-        // Fullscreen: no B:/D: prefixes
         line.textContent = t.text;
       } else {
-        // Normal: keep B:/D:
-        const prefix = t.kind === "Focus" ? "B:" : "D:";
+        const prefix = t.kind === "Focus" ? "F:" : "B:";
         line.textContent = `${prefix} ${t.text}`;
       }
 
@@ -587,6 +607,18 @@
     }
 
     return lines;
+  };
+
+  // ✅ CHANGE: Heavy only if at least one INCOME task is DONE on that day.
+  const applyDayMeaningClasses = (td, dk) => {
+    td.classList.remove("focus-support", "focus-income");
+
+    const arr = tasksFor(dk);
+    const focusArr = arr.filter(t => t.kind === "Focus");
+    if (!focusArr.length) return;
+
+    const hasCompletedIncome = focusArr.some(t => t.income && t.done);
+    td.classList.add(hasCompletedIncome ? "focus-income" : "focus-support");
   };
 
   const buildCalendar = (year) => {
@@ -651,6 +683,8 @@
           td.appendChild(wrapper);
 
           if (weekday === "SAT" || weekday === "SUN") td.classList.add("weekend");
+
+          applyDayMeaningClasses(td, dk);
         } else {
           td.classList.add("empty");
         }
@@ -779,9 +813,19 @@
     if (!t) return;
     const dk = S.selectedDayKey || todayDateKeyForYear(S.year);
     const arr = tasksFor(dk);
-    arr.push({ id: makeId(), text: t, done: false, kind: "Focus", bigMoveId: null });
+    arr.push({
+      id: makeId(),
+      text: t,
+      done: false,
+      kind: "Focus",
+      bigMoveId: null,
+      income: Boolean(el.newDayTaskIncome?.checked)
+    });
     setTasksFor(dk, arr);
+
     el.newDayTaskInput.value = "";
+    if (el.newDayTaskIncome) el.newDayTaskIncome.checked = false;
+
     syncAddButtons();
     renderSelectedDayTasks();
     buildCalendar(S.year);
